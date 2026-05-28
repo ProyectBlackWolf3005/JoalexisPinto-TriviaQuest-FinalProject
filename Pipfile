@@ -20,16 +20,17 @@ typing-extensions = "*"
 flask-jwt-extended = "==4.6.0"
 wtforms = "==3.1.2"
 sqlalchemy = "*"
+colorama = "*"
 
 [requires]
 python_version = "3.13"
 
 [scripts]
-start="flask run -p 3001 -h 0.0.0.0"
-init="flask db init"
-migrate="flask db migrate"
+start="flask --app src/app.py run -p 3001 -h 0.0.0.0"
+init="flask --app src/app.py db init"
+migrate="flask --app src/app.py db migrate"
 local="heroku local"
-upgrade="flask db upgrade"
+upgrade="flask --app src/app.py db upgrade"
 downgrade="flask db downgrade"
 insert-test-data="flask insert-test-data"
 reset_db="bash ./docs/assets/reset_migrations.bash"
