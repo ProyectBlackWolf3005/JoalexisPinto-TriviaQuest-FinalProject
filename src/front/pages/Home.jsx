@@ -1,52 +1,133 @@
-import React, { useEffect } from "react"
-import rigoImageUrl from "../assets/img/rigo-baby.jpg";
-import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import { Link } from "react-router-dom";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const Home = () => {
+    const { store } = useGlobalReducer();
 
-	const { store, dispatch } = useGlobalReducer()
+    return (
+        <main className="container py-5">
 
-	const loadMessage = async () => {
-		try {
-			const backendUrl = import.meta.env.VITE_BACKEND_URL
+            <section className="text-center py-5">
+                <h1 className="display-3 fw-bold mb-3">
+                    TriviaQuest
+                </h1>
 
-			if (!backendUrl) throw new Error("VITE_BACKEND_URL is not defined in .env file")
+                <p className="lead mb-4">
+                    Pon a prueba tus conocimientos, compite por la mejor puntuación
+                    y descubre cuánto sabes sobre distintos temas.
+                </p>
 
-			const response = await fetch(backendUrl + "/api/hello")
-			const data = await response.json()
+                <div className="d-flex justify-content-center gap-3 flex-wrap">
 
-			if (response.ok) dispatch({ type: "set_hello", payload: data.message })
+                    <Link to="/play">
+                        <button className="btn btn-warning btn-lg">
+                            Comenzar partida
+                        </button>
+                    </Link>
 
-			return data
+                    {store.token ? (
+                        <Link to="/dashboard">
+                            <button className="btn btn-outline-dark btn-lg">
+                                Ir al panel
+                            </button>
+                        </Link>
+                    ) : (
+                        <Link to="/signup">
+                            <button className="btn btn-outline-dark btn-lg">
+                                Crear cuenta
+                            </button>
+                        </Link>
+                    )}
 
-		} catch (error) {
-			if (error.message) throw new Error(
-				`Could not fetch the message from the backend.
-				Please check if the backend is running and the backend port is public.`
-			);
-		}
+                </div>
+            </section>
 
-	}
+            <section className="row g-4 mt-4">
 
-	useEffect(() => {
-		loadMessage()
-	}, [])
+                <div className="col-12 col-md-4">
+                    <div className="card h-100 shadow-sm">
+                        <div className="card-body text-center">
+                            <h2 className="h4">
+                                Elige una categoría
+                            </h2>
 
-	return (
-		<div className="text-center mt-5">
-			<h1 className="display-4">Hello Rigo!!</h1>
-			<p className="lead">
-				<img src={rigoImageUrl} className="img-fluid rounded-circle mb-3" alt="Rigo Baby" />
-			</p>
-			<div className="alert alert-info">
-				{store.message ? (
-					<span>{store.message}</span>
-				) : (
-					<span className="text-danger">
-						Loading message from the backend (make sure your python 🐍 backend is running)...
-					</span>
-				)}
-			</div>
-		</div>
-	);
-}; 
+                            <p className="text-muted">
+                                Selecciona el tema que más te interese y comienza una nueva partida.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="col-12 col-md-4">
+                    <div className="card h-100 shadow-sm">
+                        <div className="card-body text-center">
+                            <h2 className="h4">
+                                Responde preguntas
+                            </h2>
+
+                            <p className="text-muted">
+                                Pon a prueba tus conocimientos con preguntas claras y desafiantes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="col-12 col-md-4">
+                    <div className="card h-100 shadow-sm">
+                        <div className="card-body text-center">
+                            <h2 className="h4">
+                                Guarda resultados
+                            </h2>
+
+                            <p className="text-muted">
+                                Revisa tu historial, mejora tu rendimiento y supera tus marcas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <section className="card shadow-sm mt-5">
+                <div className="card-body">
+                    <h2 className="h4 text-center mb-4">
+                        ¿Cómo funciona?
+                    </h2>
+
+                    <div className="row g-3 text-center">
+
+                        <div className="col-12 col-md-3">
+                            <strong>1. Crea una cuenta</strong>
+                            <p className="text-muted mb-0">
+                                Regístrate para guardar tu progreso.
+                            </p>
+                        </div>
+
+                        <div className="col-12 col-md-3">
+                            <strong>2. Elige una categoría</strong>
+                            <p className="text-muted mb-0">
+                                Escoge el tema de la partida.
+                            </p>
+                        </div>
+
+                        <div className="col-12 col-md-3">
+                            <strong>3. Responde</strong>
+                            <p className="text-muted mb-0">
+                                Selecciona la alternativa correcta.
+                            </p>
+                        </div>
+
+                        <div className="col-12 col-md-3">
+                            <strong>4. Revisa resultados</strong>
+                            <p className="text-muted mb-0">
+                                Consulta tu historial de partidas.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    );
+};

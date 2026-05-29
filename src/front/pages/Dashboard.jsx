@@ -1,8 +1,38 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const Dashboard = () => {
-    const { store } = useGlobalReducer();
+    const { store, dispatch } = useGlobalReducer();
+
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+    useEffect(() => {
+        const loadUser = async () => {
+            if (!store.token || store.user) return;
+
+            try {
+                const response = await fetch(`${backendUrl}/api/private`, {
+                    headers: {
+                        Authorization: `Bearer ${store.token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    dispatch({
+                        type: "set_user",
+                        payload: data.user
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        loadUser();
+    }, [store.token]);
 
     return (
         <main className="container py-5">
@@ -22,20 +52,26 @@ export const Dashboard = () => {
                             </p>
                         ) : (
                             <p className="text-muted">
-                                Sesión iniciada.
+                                Cargando información del usuario...
                             </p>
                         )}
 
                         <hr />
 
                         <div className="row g-3">
+
                             <div className="col-12 col-md-6">
                                 <div className="border rounded p-3 h-100">
                                     <h2 className="h5">Jugar trivia</h2>
+
                                     <p className="text-muted">
                                         Responde preguntas por categoría y guarda tu puntaje.
                                     </p>
-                                    <Link to="/play" className="btn btn-warning">
+
+                                    <Link
+                                        to="/play"
+                                        className="btn btn-warning"
+                                    >
                                         Jugar ahora
                                     </Link>
                                 </div>
@@ -44,15 +80,22 @@ export const Dashboard = () => {
                             <div className="col-12 col-md-6">
                                 <div className="border rounded p-3 h-100">
                                     <h2 className="h5">Resultados</h2>
+
                                     <p className="text-muted">
                                         Revisa tu historial de partidas y estadísticas.
                                     </p>
-                                    <Link to="/results" className="btn btn-outline-dark">
+
+                                    <Link
+                                        to="/results"
+                                        className="btn btn-outline-dark"
+                                    >
                                         Ver resultados
                                     </Link>
                                 </div>
                             </div>
+
                         </div>
+
                     </div>
 
                 </div>
