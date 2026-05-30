@@ -2,9 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const Navbar = () => {
+    // Obtenemos el estado global para saber si el usuario tiene sesión activa.
     const { store, dispatch } = useGlobalReducer();
     const navigate = useNavigate();
 
+    // Cierra la sesión eliminando el token y redirige al login.
     const handleLogout = () => {
         dispatch({
             type: "logout"

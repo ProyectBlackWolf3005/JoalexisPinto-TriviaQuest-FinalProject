@@ -11,6 +11,7 @@ export const Results = () => {
 
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+    // Carga el historial de partidas del usuario autenticado.
     const loadResults = async () => {
         try {
             const response = await fetch(`${backendUrl}/api/game-results`, {
@@ -34,6 +35,7 @@ export const Results = () => {
         }
     };
 
+    // Ejecuta la carga de resultados al entrar en la página.
     useEffect(() => {
         loadResults();
     }, []);
@@ -75,7 +77,6 @@ export const Results = () => {
             {!loading && !error && (
                 <>
                     <section className="row g-4 justify-content-center">
-
                         <div className="col-12 col-md-4">
                             <div className="card shadow-sm h-100">
                                 <div className="card-body text-center">
@@ -102,7 +103,6 @@ export const Results = () => {
                                 </div>
                             </div>
                         </div>
-
                     </section>
 
                     <section className="card shadow-sm mt-5">
@@ -126,13 +126,16 @@ export const Results = () => {
                                                 <th>Fecha</th>
                                             </tr>
                                         </thead>
+
                                         <tbody>
                                             {results.map((result) => (
                                                 <tr key={result.id}>
                                                     <td>{result.category}</td>
                                                     <td>{result.score}</td>
                                                     <td>{result.total_questions}</td>
-                                                    <td>{result.created_at}</td>
+                                                    <td>
+                                                        {new Date(result.created_at).toLocaleDateString("es-CL")}
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>

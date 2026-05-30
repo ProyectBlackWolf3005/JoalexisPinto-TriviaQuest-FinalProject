@@ -2,11 +2,12 @@ import { Link } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const Home = () => {
+    // Obtenemos el estado global para saber si el usuario tiene sesión activa.
     const { store } = useGlobalReducer();
 
     return (
         <main className="container py-5">
-
+            {/* Sección principal de bienvenida */}
             <section className="text-center py-5">
                 <h1 className="display-3 fw-bold mb-3">
                     TriviaQuest
@@ -18,7 +19,6 @@ export const Home = () => {
                 </p>
 
                 <div className="d-flex justify-content-center gap-3 flex-wrap">
-
                     <Link to="/play">
                         <button className="btn btn-warning btn-lg">
                             Comenzar partida
@@ -38,12 +38,11 @@ export const Home = () => {
                             </button>
                         </Link>
                     )}
-
                 </div>
             </section>
 
+            {/* Sección de características principales */}
             <section className="row g-4 mt-4">
-
                 <div className="col-12 col-md-4">
                     <div className="card h-100 shadow-sm">
                         <div className="card-body text-center">
@@ -85,9 +84,9 @@ export const Home = () => {
                         </div>
                     </div>
                 </div>
-
             </section>
 
+            {/* Sección explicativa del flujo de uso */}
             <section className="card shadow-sm mt-5">
                 <div className="card-body">
                     <h2 className="h4 text-center mb-4">
@@ -95,7 +94,6 @@ export const Home = () => {
                     </h2>
 
                     <div className="row g-3 text-center">
-
                         <div className="col-12 col-md-3">
                             <strong>1. Crea una cuenta</strong>
                             <p className="text-muted mb-0">
@@ -123,11 +121,9 @@ export const Home = () => {
                                 Consulta tu historial de partidas.
                             </p>
                         </div>
-
                     </div>
                 </div>
             </section>
-
         </main>
     );
 };

@@ -7,6 +7,8 @@ export const Dashboard = () => {
 
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+    // Recupera la información del usuario cuando existe un token
+    // pero todavía no se han cargado sus datos en el estado global.
     useEffect(() => {
         const loadUser = async () => {
             if (!store.token || store.user) return;
@@ -32,15 +34,16 @@ export const Dashboard = () => {
         };
 
         loadUser();
-    }, [store.token]);
+    }, [store.token, store.user, dispatch, backendUrl]);
 
     return (
         <main className="container py-5">
             <section className="row justify-content-center">
                 <div className="col-12 col-lg-8">
-
                     <div className="card shadow-sm p-4">
-                        <h1 className="mb-3">Panel</h1>
+                        <h1 className="mb-3">
+                            Panel
+                        </h1>
 
                         <p className="lead mb-1">
                             Bienvenido a TriviaQuest.
@@ -59,10 +62,11 @@ export const Dashboard = () => {
                         <hr />
 
                         <div className="row g-3">
-
                             <div className="col-12 col-md-6">
                                 <div className="border rounded p-3 h-100">
-                                    <h2 className="h5">Jugar trivia</h2>
+                                    <h2 className="h5">
+                                        Jugar trivia
+                                    </h2>
 
                                     <p className="text-muted">
                                         Responde preguntas por categoría y guarda tu puntaje.
@@ -79,7 +83,9 @@ export const Dashboard = () => {
 
                             <div className="col-12 col-md-6">
                                 <div className="border rounded p-3 h-100">
-                                    <h2 className="h5">Resultados</h2>
+                                    <h2 className="h5">
+                                        Resultados
+                                    </h2>
 
                                     <p className="text-muted">
                                         Revisa tu historial de partidas y estadísticas.
@@ -93,11 +99,9 @@ export const Dashboard = () => {
                                     </Link>
                                 </div>
                             </div>
-
                         </div>
 
                     </div>
-
                 </div>
             </section>
         </main>

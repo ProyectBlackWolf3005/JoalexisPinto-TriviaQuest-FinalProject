@@ -1,14 +1,14 @@
 export const initialStore = () => {
     return {
         token: localStorage.getItem("token") || null,
-        user: null,
-        message: null
+        user: null
     };
 };
 
 export default function storeReducer(store, action = {}) {
     switch (action.type) {
         case "login":
+            // Guarda el token para mantener la sesión al recargar la página.
             localStorage.setItem("token", action.payload.token);
 
             return {
@@ -18,6 +18,7 @@ export default function storeReducer(store, action = {}) {
             };
 
         case "logout":
+            // Elimina el token y limpia la información del usuario.
             localStorage.removeItem("token");
 
             return {
@@ -27,15 +28,10 @@ export default function storeReducer(store, action = {}) {
             };
 
         case "set_user":
+            // Actualiza los datos del usuario autenticado.
             return {
                 ...store,
                 user: action.payload
-            };
-
-        case "set_message":
-            return {
-                ...store,
-                message: action.payload
             };
 
         default:

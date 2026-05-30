@@ -1,12 +1,11 @@
 import {
     createBrowserRouter,
     createRoutesFromElements,
-    Route,
+    Route
 } from "react-router-dom";
 
 import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
-
 import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { Dashboard } from "./pages/Dashboard";
@@ -19,13 +18,10 @@ export const router = createBrowserRouter(
         <Route
             path="/"
             element={<Layout />}
-            errorElement={<h1>Not found!</h1>}
+            errorElement={<h1>Página no encontrada</h1>}
         >
-
             <Route path="/" element={<Home />} />
-
             <Route path="/login" element={<Login />} />
-
             <Route path="/signup" element={<Signup />} />
 
             <Route
@@ -54,7 +50,6 @@ export const router = createBrowserRouter(
                     </ProtectedRoute>
                 }
             />
-
         </Route>
     )
 );
