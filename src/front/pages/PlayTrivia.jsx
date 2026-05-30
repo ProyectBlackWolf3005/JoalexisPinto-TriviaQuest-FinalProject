@@ -1,61 +1,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
+import { questionBank, categories } from "../data/questionBank";
 
-const questionBank = [
-    {
-        category: "Cultura general",
-        question: "¿Cuál es la capital de Chile?",
-        options: ["Santiago", "Lima", "Buenos Aires", "Montevideo"],
-        correctAnswer: "Santiago"
-    },
-    {
-        category: "Cultura general",
-        question: "¿Cuántos colores tiene la bandera de Chile?",
-        options: ["Dos", "Tres", "Cuatro", "Cinco"],
-        correctAnswer: "Tres"
-    },
-    {
-        category: "Ciencia",
-        question: "¿Qué planeta es conocido como el planeta rojo?",
-        options: ["Venus", "Marte", "Júpiter", "Saturno"],
-        correctAnswer: "Marte"
-    },
-    {
-        category: "Ciencia",
-        question: "¿Cuántos lados tiene un hexágono?",
-        options: ["Cinco", "Seis", "Siete", "Ocho"],
-        correctAnswer: "Seis"
-    },
-    {
-        category: "Historia",
-        question: "¿En qué año llegó el ser humano a la Luna?",
-        options: ["1965", "1969", "1972", "1980"],
-        correctAnswer: "1969"
-    },
-    {
-        category: "Historia",
-        question: "¿Qué civilización construyó las pirámides de Giza?",
-        options: ["Romana", "Egipcia", "Griega", "Maya"],
-        correctAnswer: "Egipcia"
-    },
-    {
-        category: "Entretenimiento",
-        question: "¿Cuál de estas sagas pertenece al cine de fantasía?",
-        options: ["Rápidos y Furiosos", "Harry Potter", "Rocky", "Jurassic Park"],
-        correctAnswer: "Harry Potter"
-    },
-    {
-        category: "Entretenimiento",
-        question: "¿Qué instrumento suele asociarse con una banda de rock?",
-        options: ["Guitarra eléctrica", "Arpa", "Flauta dulce", "Acordeón"],
-        correctAnswer: "Guitarra eléctrica"
-    }
-];
-
-const categories = ["Cultura general", "Ciencia", "Historia", "Entretenimiento"];
+const QUESTIONS_PER_GAME = 5;
 
 const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
+
+const prepareQuestions = (questions) => {
+    return shuffleArray(questions)
+        .slice(0, QUESTIONS_PER_GAME)
+        .map((question) => ({
+            ...question,
+            options: shuffleArray(question.options)
+        }));
+};
 
 export const PlayTrivia = () => {
     const { store } = useGlobalReducer();
@@ -111,7 +70,7 @@ export const PlayTrivia = () => {
         );
 
         setSelectedCategory(category);
-        setQuestions(shuffleArray(selectedQuestions));
+        setQuestions(prepareQuestions(selectedQuestions));
         setGameStarted(true);
         setCurrentQuestion(0);
         setSelectedAnswer("");
@@ -211,7 +170,7 @@ export const PlayTrivia = () => {
                                 <div className="card-body text-center">
                                     <h2 className="h5">{category}</h2>
                                     <p className="text-muted">
-                                        Responde preguntas y acumula puntos.
+                                        Responde preguntas aleatorias y acumula puntos.
                                     </p>
                                     <button
                                         className="btn btn-warning w-100"
@@ -229,6 +188,20 @@ export const PlayTrivia = () => {
     }
 
     if (gameFinished) {
+        const percentage = Math.round((score / questions.length) * 100);
+
+        let message = "Sigue practicando";
+
+        if (percentage === 100) {
+            message = "Excelente partida";
+        } else if (percentage >= 80) {
+            message = "Muy buen resultado";
+        } else if (percentage >= 60) {
+            message = "Buen trabajo";
+        } else if (percentage >= 40) {
+            message = "Puedes mejorar";
+        }
+
         return (
             <main className="container py-5">
                 <section className="row justify-content-center">
@@ -236,13 +209,17 @@ export const PlayTrivia = () => {
                         <div className="card shadow-sm p-4 text-center">
                             <h1 className="mb-3">Partida finalizada</h1>
 
-                            <p className="lead">
+                            <p className="lead mb-1">
                                 Categoría: <strong>{selectedCategory}</strong>
                             </p>
 
-                            <p className="lead">
+                            <p className="lead mb-1">
                                 Obtuviste <strong>{score}</strong> de{" "}
                                 <strong>{questions.length}</strong> puntos.
+                            </p>
+
+                            <p className="lead">
+                                {percentage}% de aciertos · <strong>{message}</strong>
                             </p>
 
                             {resultSaved && (
