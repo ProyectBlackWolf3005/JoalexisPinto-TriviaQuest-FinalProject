@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import request, jsonify, Blueprint
-from api.models import db, User
+from api.models import db, User, GameResult
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -90,3 +90,50 @@ def private():
         "message": "Ruta privada funcionando correctamente.",
         "user": user.serialize()
     }), 200
+
+
+@api.route("/game-results", methods=["GET"])
+@jwt_required()
+def get_game_results():
+    current_user_id = get_jwt_identity()
+
+    results = GameResult.query.filter_by(
+        user_id=current_user_id
+    ).order_by(
+        GameResult.created_at.desc()
+    ).all()
+
+    return jsonify({
+        "results": [result.serialize() for result in results]
+    }), 200
+
+
+@api.route("/game-results", methods=["POST"])
+@jwt_required()
+def create_game_result():
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+
+    score = data.get("score")
+    total_questions = data.get("total_questions")
+    category = data.get("category")
+
+    if score is None or total_questions is None or not category:
+        return jsonify({
+            "error": "Puntaje, total de preguntas y categoría son obligatorios."
+        }), 400
+
+    new_result = GameResult(
+        score=score,
+        total_questions=total_questions,
+        category=category,
+        user_id=current_user_id
+    )
+
+    db.session.add(new_result)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Resultado guardado correctamente.",
+        "result": new_result.serialize()
+    }), 201
