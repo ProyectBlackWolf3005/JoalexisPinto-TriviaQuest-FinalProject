@@ -14,11 +14,9 @@ CORS(api)
 
 @api.route("/hello", methods=["GET"])
 def handle_hello():
-    response_body = {
+    return jsonify({
         "message": "TriviaQuest backend is running correctly."
-    }
-
-    return jsonify(response_body), 200
+    }), 200
 
 
 @api.route("/signup", methods=["POST"])
@@ -36,11 +34,9 @@ def signup():
     if existing_user:
         return jsonify({"error": "Este email ya está registrado."}), 400
 
-    hashed_password = generate_password_hash(password)
-
     new_user = User(
         email=email,
-        password=hashed_password,
+        password=generate_password_hash(password),
         is_active=True
     )
 
@@ -92,6 +88,70 @@ def private():
     }), 200
 
 
+@api.route("/profile", methods=["GET"])
+@jwt_required()
+def get_profile():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"error": "Usuario no encontrado."}), 404
+
+    return jsonify({
+        "user": user.serialize()
+    }), 200
+
+
+@api.route("/profile", methods=["PUT"])
+@jwt_required()
+def update_profile():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    data = request.get_json()
+
+    if not user:
+        return jsonify({"error": "Usuario no encontrado."}), 404
+
+    username = data.get("username")
+    user.username = username.strip() if username else None
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Perfil actualizado correctamente.",
+        "user": user.serialize()
+    }), 200
+
+
+@api.route("/change-password", methods=["PUT"])
+@jwt_required()
+def change_password():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    data = request.get_json()
+
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    if not user:
+        return jsonify({"error": "Usuario no encontrado."}), 404
+
+    if not current_password or not new_password:
+        return jsonify({
+            "error": "Debes ingresar la contraseña actual y la nueva contraseña."
+        }), 400
+
+    if not check_password_hash(user.password, current_password):
+        return jsonify({"error": "La contraseña actual no es correcta."}), 401
+
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Contraseña actualizada correctamente."
+    }), 200
+
+
 @api.route("/game-results", methods=["GET"])
 @jwt_required()
 def get_game_results():
@@ -137,3 +197,19 @@ def create_game_result():
         "message": "Resultado guardado correctamente.",
         "result": new_result.serialize()
     }), 201
+
+
+@api.route("/game-results", methods=["DELETE"])
+@jwt_required()
+def delete_game_results():
+    current_user_id = get_jwt_identity()
+
+    GameResult.query.filter_by(
+        user_id=current_user_id
+    ).delete()
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Historial eliminado correctamente."
+    }), 200

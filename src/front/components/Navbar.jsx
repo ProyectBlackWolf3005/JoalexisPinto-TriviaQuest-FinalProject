@@ -2,11 +2,10 @@ import { Link, useNavigate } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const Navbar = () => {
-    // Obtenemos el estado global para saber si el usuario tiene sesión activa.
     const { store, dispatch } = useGlobalReducer();
     const navigate = useNavigate();
 
-    // Cierra la sesión eliminando el token y redirige al login.
+    // Cierra la sesión y redirige al login.
     const handleLogout = () => {
         dispatch({
             type: "logout"
@@ -18,13 +17,11 @@ export const Navbar = () => {
     return (
         <nav className="navbar navbar-dark bg-dark">
             <div className="container">
-
                 <Link to="/" className="navbar-brand">
                     TriviaQuest
                 </Link>
 
                 <div className="d-flex gap-2">
-
                     <Link to="/play">
                         <button className="btn btn-warning">
                             Jugar
@@ -39,10 +36,13 @@ export const Navbar = () => {
                                 </button>
                             </Link>
 
-                            <button
-                                className="btn btn-danger"
-                                onClick={handleLogout}
-                            >
+                            <Link to="/profile">
+                                <button className="btn btn-outline-light">
+                                    Perfil
+                                </button>
+                            </Link>
+
+                            <button className="btn btn-danger" onClick={handleLogout}>
                                 Salir
                             </button>
                         </>
@@ -61,9 +61,7 @@ export const Navbar = () => {
                             </Link>
                         </>
                     )}
-
                 </div>
-
             </div>
         </nav>
     );

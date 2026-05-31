@@ -17,6 +17,11 @@ class User(db.Model):
         nullable=False
     )
 
+    username: Mapped[str] = mapped_column(
+        String(80),
+        nullable=True
+    )
+
     password: Mapped[str] = mapped_column(
         String(255),
         nullable=False
@@ -45,7 +50,8 @@ class User(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "email": self.email
+            "email": self.email,
+            "username": self.username
         }
 
 

@@ -11,6 +11,7 @@ import { Signup } from "./pages/Signup";
 import { Dashboard } from "./pages/Dashboard";
 import { PlayTrivia } from "./pages/PlayTrivia";
 import { Results } from "./pages/Results";
+import { Profile } from "./pages/Profile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export const router = createBrowserRouter(
@@ -47,6 +48,15 @@ export const router = createBrowserRouter(
                 element={
                     <ProtectedRoute>
                         <Results />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/profile"
+                element={
+                    <ProtectedRoute>
+                        <Profile />
                     </ProtectedRoute>
                 }
             />

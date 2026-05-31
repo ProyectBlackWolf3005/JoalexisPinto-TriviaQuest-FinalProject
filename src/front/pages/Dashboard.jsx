@@ -51,7 +51,8 @@ export const Dashboard = () => {
 
                         {store.user ? (
                             <p className="text-muted">
-                                Sesión iniciada como: <strong>{store.user.email}</strong>
+                            Sesión iniciada como:{" "}
+                            <strong>{store.user.username || store.user.email}</strong>
                             </p>
                         ) : (
                             <p className="text-muted">
