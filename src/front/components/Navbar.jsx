@@ -21,7 +21,7 @@ export const Navbar = () => {
                     TriviaQuest
                 </Link>
 
-                <div className="d-flex gap-2">
+                <div className="d-flex gap-2 flex-wrap">
                     <Link to="/play">
                         <button className="btn btn-warning">
                             Jugar
@@ -33,6 +33,12 @@ export const Navbar = () => {
                             <Link to="/dashboard">
                                 <button className="btn btn-outline-light">
                                     Panel
+                                </button>
+                            </Link>
+
+                            <Link to="/my-questions">
+                                <button className="btn btn-outline-light">
+                                    Mis preguntas
                                 </button>
                             </Link>
 

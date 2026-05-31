@@ -5,16 +5,19 @@ import { questionBank, categories } from "../data/questionBank";
 
 const QUESTIONS_PER_GAME = 5;
 const ONLINE_QUESTIONS_PER_GAME = 10;
+const CUSTOM_QUESTIONS_PER_GAME = 15;
 const ONLINE_CATEGORY = "Trivia Online";
+const CUSTOM_CATEGORY = "Mis preguntas";
 
-const allCategories = [...categories, ONLINE_CATEGORY];
+const allCategories = [...categories, ONLINE_CATEGORY, CUSTOM_CATEGORY];
 
 const categoryDescriptions = {
     "Cultura general": "Preguntas variadas para poner a prueba tus conocimientos.",
     "Historia": "Eventos y personajes importantes de distintas épocas.",
     "Ciencia": "Descubre cuánto sabes sobre el mundo y sus fenómenos.",
     "Entretenimiento": "Películas, series, música y cultura popular.",
-    [ONLINE_CATEGORY]: "Preguntas generales en inglés."
+    [ONLINE_CATEGORY]: "Preguntas generales en inglés.",
+    [CUSTOM_CATEGORY]: "Juega con las preguntas personalizadas que has creado."
 };
 
 const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
@@ -48,6 +51,22 @@ const prepareOnlineQuestions = (questions) => {
             ])
         };
     });
+};
+
+const prepareCustomQuestions = (questions) => {
+    return shuffleArray(questions)
+        .slice(0, CUSTOM_QUESTIONS_PER_GAME)
+        .map((question) => ({
+            category: CUSTOM_CATEGORY,
+            question: question.question,
+            correctAnswer: question.correct_answer,
+            options: shuffleArray([
+                question.correct_answer,
+                question.wrong_answer_1,
+                question.wrong_answer_2,
+                question.wrong_answer_3
+            ])
+        }));
 };
 
 export const PlayTrivia = () => {
@@ -152,9 +171,48 @@ export const PlayTrivia = () => {
         }
     };
 
+    const startCustomGame = async () => {
+        setLoadingQuestions(true);
+        setQuestionError("");
+
+        try {
+            const response = await fetch(`${backendUrl}/api/custom-questions`, {
+                headers: {
+                    Authorization: `Bearer ${store.token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setQuestionError(data.error || "No se pudieron cargar tus preguntas.");
+                return;
+            }
+
+            if (data.questions.length === 0) {
+                setQuestionError("Primero crea preguntas en la sección Mis preguntas.");
+                return;
+            }
+
+            setSelectedCategory(CUSTOM_CATEGORY);
+            setQuestions(prepareCustomQuestions(data.questions));
+            setGameStarted(true);
+            resetGameState();
+        } catch (error) {
+            setQuestionError("Error de conexión al cargar tus preguntas.");
+        } finally {
+            setLoadingQuestions(false);
+        }
+    };
+
     const startGame = (category) => {
         if (category === ONLINE_CATEGORY) {
             startOnlineGame();
+            return;
+        }
+
+        if (category === CUSTOM_CATEGORY) {
+            startCustomGame();
             return;
         }
 
@@ -259,7 +317,8 @@ export const PlayTrivia = () => {
                                         onClick={() => startGame(category)}
                                         disabled={loadingQuestions}
                                     >
-                                        {loadingQuestions && category === ONLINE_CATEGORY
+                                        {loadingQuestions &&
+                                            (category === ONLINE_CATEGORY || category === CUSTOM_CATEGORY)
                                             ? "Cargando..."
                                             : "Seleccionar"}
                                     </button>

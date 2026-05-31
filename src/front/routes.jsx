@@ -12,6 +12,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { PlayTrivia } from "./pages/PlayTrivia";
 import { Results } from "./pages/Results";
 import { Profile } from "./pages/Profile";
+import { MyQuestions } from "./pages/MyQuestions";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export const router = createBrowserRouter(
@@ -57,6 +58,15 @@ export const router = createBrowserRouter(
                 element={
                     <ProtectedRoute>
                         <Profile />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/my-questions"
+                element={
+                    <ProtectedRoute>
+                        <MyQuestions />
                     </ProtectedRoute>
                 }
             />

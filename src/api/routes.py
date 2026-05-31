@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import request, jsonify, Blueprint
-from api.models import db, User, GameResult
+from api.models import db, User, GameResult, CustomQuestion
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -97,9 +97,7 @@ def get_profile():
     if not user:
         return jsonify({"error": "Usuario no encontrado."}), 404
 
-    return jsonify({
-        "user": user.serialize()
-    }), 200
+    return jsonify({"user": user.serialize()}), 200
 
 
 @api.route("/profile", methods=["PUT"])
@@ -204,12 +202,124 @@ def create_game_result():
 def delete_game_results():
     current_user_id = get_jwt_identity()
 
-    GameResult.query.filter_by(
-        user_id=current_user_id
-    ).delete()
-
+    GameResult.query.filter_by(user_id=current_user_id).delete()
     db.session.commit()
 
     return jsonify({
         "message": "Historial eliminado correctamente."
+    }), 200
+
+
+@api.route("/custom-questions", methods=["GET"])
+@jwt_required()
+def get_custom_questions():
+    current_user_id = get_jwt_identity()
+
+    questions = CustomQuestion.query.filter_by(
+        user_id=current_user_id
+    ).order_by(
+        CustomQuestion.id.desc()
+    ).all()
+
+    return jsonify({
+        "questions": [question.serialize() for question in questions]
+    }), 200
+
+
+@api.route("/custom-questions", methods=["POST"])
+@jwt_required()
+def create_custom_question():
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+
+    question = data.get("question")
+    correct_answer = data.get("correct_answer")
+    wrong_answer_1 = data.get("wrong_answer_1")
+    wrong_answer_2 = data.get("wrong_answer_2")
+    wrong_answer_3 = data.get("wrong_answer_3")
+    category = data.get("category")
+    difficulty = data.get("difficulty")
+
+    if not question or not correct_answer or not wrong_answer_1 or not wrong_answer_2 or not wrong_answer_3 or not category or not difficulty:
+        return jsonify({"error": "Todos los campos son obligatorios."}), 400
+
+    new_question = CustomQuestion(
+        question=question,
+        correct_answer=correct_answer,
+        wrong_answer_1=wrong_answer_1,
+        wrong_answer_2=wrong_answer_2,
+        wrong_answer_3=wrong_answer_3,
+        category=category,
+        difficulty=difficulty,
+        user_id=current_user_id
+    )
+
+    db.session.add(new_question)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Pregunta creada correctamente.",
+        "question": new_question.serialize()
+    }), 201
+
+
+@api.route("/custom-questions/<int:question_id>", methods=["PUT"])
+@jwt_required()
+def update_custom_question(question_id):
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+
+    custom_question = CustomQuestion.query.filter_by(
+        id=question_id,
+        user_id=current_user_id
+    ).first()
+
+    if not custom_question:
+        return jsonify({"error": "Pregunta no encontrada."}), 404
+
+    question = data.get("question")
+    correct_answer = data.get("correct_answer")
+    wrong_answer_1 = data.get("wrong_answer_1")
+    wrong_answer_2 = data.get("wrong_answer_2")
+    wrong_answer_3 = data.get("wrong_answer_3")
+    category = data.get("category")
+    difficulty = data.get("difficulty")
+
+    if not question or not correct_answer or not wrong_answer_1 or not wrong_answer_2 or not wrong_answer_3 or not category or not difficulty:
+        return jsonify({"error": "Todos los campos son obligatorios."}), 400
+
+    custom_question.question = question
+    custom_question.correct_answer = correct_answer
+    custom_question.wrong_answer_1 = wrong_answer_1
+    custom_question.wrong_answer_2 = wrong_answer_2
+    custom_question.wrong_answer_3 = wrong_answer_3
+    custom_question.category = category
+    custom_question.difficulty = difficulty
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Pregunta actualizada correctamente.",
+        "question": custom_question.serialize()
+    }), 200
+
+
+@api.route("/custom-questions/<int:question_id>", methods=["DELETE"])
+@jwt_required()
+def delete_custom_question(question_id):
+    current_user_id = get_jwt_identity()
+
+    custom_question = CustomQuestion.query.filter_by(
+        id=question_id,
+        user_id=current_user_id
+    ).first()
+
+    if not custom_question:
+        return jsonify({"error": "Pregunta no encontrada."}), 404
+
+    db.session.delete(custom_question)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Pregunta eliminada correctamente."
     }), 200

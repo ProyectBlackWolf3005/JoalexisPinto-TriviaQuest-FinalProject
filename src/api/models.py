@@ -108,6 +108,10 @@ class CustomQuestion(db.Model):
         return {
             "id": self.id,
             "question": self.question,
+            "correct_answer": self.correct_answer,
+            "wrong_answer_1": self.wrong_answer_1,
+            "wrong_answer_2": self.wrong_answer_2,
+            "wrong_answer_3": self.wrong_answer_3,
             "category": self.category,
             "difficulty": self.difficulty
         }
