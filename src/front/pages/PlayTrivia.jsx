@@ -4,8 +4,26 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import { questionBank, categories } from "../data/questionBank";
 
 const QUESTIONS_PER_GAME = 5;
+const ONLINE_QUESTIONS_PER_GAME = 10;
+const ONLINE_CATEGORY = "Trivia Online";
+
+const allCategories = [...categories, ONLINE_CATEGORY];
+
+const categoryDescriptions = {
+    "Cultura general": "Preguntas variadas para poner a prueba tus conocimientos.",
+    "Historia": "Eventos y personajes importantes de distintas épocas.",
+    "Ciencia": "Descubre cuánto sabes sobre el mundo y sus fenómenos.",
+    "Entretenimiento": "Películas, series, música y cultura popular.",
+    [ONLINE_CATEGORY]: "Preguntas generales en inglés."
+};
 
 const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
+
+const decodeText = (text) => {
+    const textArea = document.createElement("textarea");
+    textArea.innerHTML = text;
+    return textArea.value;
+};
 
 const prepareQuestions = (questions) => {
     return shuffleArray(questions)
@@ -14,6 +32,22 @@ const prepareQuestions = (questions) => {
             ...question,
             options: shuffleArray(question.options)
         }));
+};
+
+const prepareOnlineQuestions = (questions) => {
+    return questions.map((question) => {
+        const correctAnswer = decodeText(question.correct_answer);
+
+        return {
+            category: ONLINE_CATEGORY,
+            question: decodeText(question.question),
+            correctAnswer,
+            options: shuffleArray([
+                correctAnswer,
+                ...question.incorrect_answers.map((answer) => decodeText(answer))
+            ])
+        };
+    });
 };
 
 export const PlayTrivia = () => {
@@ -32,9 +66,25 @@ export const PlayTrivia = () => {
     const [usedSkip, setUsedSkip] = useState(false);
     const [resultSaved, setResultSaved] = useState(false);
     const [saveError, setSaveError] = useState("");
+    const [loadingQuestions, setLoadingQuestions] = useState(false);
+    const [questionError, setQuestionError] = useState("");
 
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const question = questions[currentQuestion];
+
+    const resetGameState = () => {
+        setCurrentQuestion(0);
+        setSelectedAnswer("");
+        setScore(0);
+        setShowResult(false);
+        setGameFinished(false);
+        setDisabledOptions([]);
+        setUsedFiftyFifty(false);
+        setUsedSkip(false);
+        setResultSaved(false);
+        setSaveError("");
+        setQuestionError("");
+    };
 
     const saveGameResult = async (finalScore) => {
         if (resultSaved) return;
@@ -64,7 +114,7 @@ export const PlayTrivia = () => {
         }
     };
 
-    const startGame = (category) => {
+    const startLocalGame = (category) => {
         const selectedQuestions = questionBank.filter(
             (item) => item.category === category
         );
@@ -72,16 +122,43 @@ export const PlayTrivia = () => {
         setSelectedCategory(category);
         setQuestions(prepareQuestions(selectedQuestions));
         setGameStarted(true);
-        setCurrentQuestion(0);
-        setSelectedAnswer("");
-        setScore(0);
-        setShowResult(false);
-        setGameFinished(false);
-        setDisabledOptions([]);
-        setUsedFiftyFifty(false);
-        setUsedSkip(false);
-        setResultSaved(false);
-        setSaveError("");
+        resetGameState();
+    };
+
+    const startOnlineGame = async () => {
+        setLoadingQuestions(true);
+        setQuestionError("");
+
+        try {
+            const response = await fetch(
+                `https://opentdb.com/api.php?amount=${ONLINE_QUESTIONS_PER_GAME}&type=multiple`
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || data.response_code !== 0) {
+                setQuestionError("No se pudieron cargar las preguntas online.");
+                return;
+            }
+
+            setSelectedCategory(ONLINE_CATEGORY);
+            setQuestions(prepareOnlineQuestions(data.results));
+            setGameStarted(true);
+            resetGameState();
+        } catch (error) {
+            setQuestionError("Error de conexión con la API externa.");
+        } finally {
+            setLoadingQuestions(false);
+        }
+    };
+
+    const startGame = (category) => {
+        if (category === ONLINE_CATEGORY) {
+            startOnlineGame();
+            return;
+        }
+
+        startLocalGame(category);
     };
 
     const handleNextQuestion = () => {
@@ -141,42 +218,50 @@ export const PlayTrivia = () => {
         setGameStarted(false);
         setSelectedCategory("");
         setQuestions([]);
-        setCurrentQuestion(0);
-        setSelectedAnswer("");
-        setScore(0);
-        setShowResult(false);
-        setGameFinished(false);
-        setDisabledOptions([]);
-        setUsedFiftyFifty(false);
-        setUsedSkip(false);
-        setResultSaved(false);
-        setSaveError("");
+        resetGameState();
     };
 
     if (!gameStarted) {
         return (
             <main className="container py-5">
                 <section className="text-center mb-5">
-                    <h1 className="display-5 fw-bold">Jugar trivia</h1>
+                    <h1 className="display-5 fw-bold">
+                        Jugar trivia
+                    </h1>
+
                     <p className="lead text-muted">
                         Elige una categoría para comenzar una partida.
                     </p>
                 </section>
 
+                {questionError && (
+                    <div className="alert alert-danger">
+                        {questionError}
+                    </div>
+                )}
+
                 <section className="row g-4 justify-content-center">
-                    {categories.map((category) => (
+                    {allCategories.map((category) => (
                         <div className="col-12 col-md-6 col-lg-3" key={category}>
                             <div className="card h-100 shadow-sm">
                                 <div className="card-body text-center">
-                                    <h2 className="h5">{category}</h2>
+                                    <h2 className="h5">
+                                        {category}
+                                    </h2>
+
                                     <p className="text-muted">
-                                        Responde preguntas aleatorias y acumula puntos.
+                                        {categoryDescriptions[category] ||
+                                            "Responde preguntas aleatorias y acumula puntos."}
                                     </p>
+
                                     <button
                                         className="btn btn-warning w-100"
                                         onClick={() => startGame(category)}
+                                        disabled={loadingQuestions}
                                     >
-                                        Seleccionar
+                                        {loadingQuestions && category === ONLINE_CATEGORY
+                                            ? "Cargando..."
+                                            : "Seleccionar"}
                                     </button>
                                 </div>
                             </div>
@@ -207,7 +292,9 @@ export const PlayTrivia = () => {
                 <section className="row justify-content-center">
                     <div className="col-12 col-lg-8">
                         <div className="card shadow-sm p-4 text-center">
-                            <h1 className="mb-3">Partida finalizada</h1>
+                            <h1 className="mb-3">
+                                Partida finalizada
+                            </h1>
 
                             <p className="lead mb-1">
                                 Categoría: <strong>{selectedCategory}</strong>
@@ -273,7 +360,9 @@ export const PlayTrivia = () => {
                             </span>
                         </div>
 
-                        <h1 className="h3 mb-4">{question.question}</h1>
+                        <h1 className="h3 mb-4">
+                            {question.question}
+                        </h1>
 
                         <div className="row g-3">
                             {question.options.map((option) => {
@@ -339,7 +428,9 @@ export const PlayTrivia = () => {
                                 onClick={handleNextQuestion}
                                 disabled={!selectedAnswer || showResult}
                             >
-                                {currentQuestion + 1 === questions.length ? "Finalizar" : "Siguiente"}
+                                {currentQuestion + 1 === questions.length
+                                    ? "Finalizar"
+                                    : "Siguiente"}
                             </button>
                         </div>
                     </div>
