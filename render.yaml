@@ -10,6 +10,8 @@ services:
       envVars:
           - key: VITE_BASENAME
             value: /
+          - key: VITE_BACKEND_URL
+            value: https://triviaquest-finalproject.onrender.com
           - key: FLASK_APP
             value: src/app.py
           - key: FLASK_DEBUG
