@@ -1,81 +1,187 @@
-# WebApp boilerplate with React JS and Flask API
+# TriviaQuest
 
-Build web applications using React.js for the front end and python/flask for your backend API.
+Aplicación web de trivias desarrollada como proyecto final del bootcamp Full Stack a tu propio Ritmo de 4Geeks Academy.
 
-- Documentation can be found here: https://4geeks.com/docs/start/react-flask-template
-- Here is a video on [how to use this template](https://www.loom.com/share/f37c6838b3f1496c95111e515e83dd9b)
-- Integrated with Pipenv for package managing.
-- Fast deployment to Render [in just a few steps here](https://4geeks.com/docs/start/deploy-to-render-com).
-- Use of .env file.
-- SQLAlchemy integration for database abstraction.
+TriviaQuest permite a los usuarios registrarse, iniciar sesión, jugar partidas de trivia, guardar resultados, consultar su historial de partidas, gestionar su perfil y crear sus propias preguntas personalizadas para generar experiencias de juego únicas.
 
-### 1) Installation:
+## Demo en producción
 
-> If you use Github Codespaces (recommended) or Gitpod this template will already come with Python, Node and the Posgres Database installed. If you are working locally make sure to install Python 3.10, Node 
+**Deploy:**
 
-It is recomended to install the backend first, make sure you have Python 3.10, Pipenv and a database engine (Posgress recomended)
+https://triviaquest-finalproject.onrender.com/
 
-1. Install the python packages: `$ pipenv install`
-2. Create a .env file based on the .env.example: `$ cp .env.example .env`
-3. Install your database engine and create your database, depending on your database you have to create a DATABASE_URL variable with one of the possible values, make sure you replace the valudes with your database information:
+**GitHub Project:**
 
-| Engine    | DATABASE_URL                                        |
-| --------- | --------------------------------------------------- |
-| SQLite    | sqlite:////test.db                                  |
-| MySQL     | mysql://username:password@localhost:port/example    |
-| Postgress | postgres://username:password@localhost:5432/example |
+https://github.com/users/ProyectBlackWolf3005/projects/2
 
-4. Migrate the migrations: `$ pipenv run migrate` (skip if you have not made changes to the models on the `./src/api/models.py`)
-5. Run the migrations: `$ pipenv run upgrade`
-6. Run the application: `$ pipenv run start`
+**Repositorio:**
 
-> Note: Codespaces users can connect to psql by typing: `psql -h localhost -U gitpod example`
+https://github.com/ProyectBlackWolf3005/JoalexisPinto-TriviaQuest-FinalProject
 
-### Undo a migration
+---
 
-You are also able to undo a migration by running
+## Funcionalidades principales
 
-```sh
-$ pipenv run downgrade
+### Sistema de usuarios
+
+* Registro de usuarios.
+* Inicio de sesión mediante JWT.
+* Protección de rutas privadas.
+* Gestión de perfil.
+* Cambio de contraseña.
+
+### Sistema de trivias
+
+#### Categorías locales
+
+* Cultura general.
+* Ciencia.
+* Historia.
+* Entretenimiento.
+
+#### Trivia Online
+
+* Integración con Open Trivia Database (OpenTDB).
+* Preguntas dinámicas obtenidas desde una API externa.
+
+### Sistema de juego
+
+* Selección de categoría.
+* Preguntas aleatorias.
+* Comodín 50/50.
+* Opción para saltar una pregunta.
+* Registro automático de resultados.
+* Historial de partidas.
+
+### Resultados y estadísticas
+
+* Historial de partidas.
+* Mejor puntuación obtenida.
+* Última categoría jugada.
+* Eliminación completa del historial.
+
+### Preguntas personalizadas
+
+* Crear preguntas propias.
+* Consultar preguntas creadas.
+* Editar preguntas existentes.
+* Eliminar preguntas.
+* Jugar utilizando preguntas creadas por el usuario.
+
+Esta funcionalidad implementa un CRUD completo para la gestión de preguntas personalizadas.
+
+---
+
+## Tecnologías utilizadas
+
+### Frontend
+
+* React
+* React Router
+* Context API
+* Bootstrap 5
+* Vite
+
+### Backend
+
+* Flask
+* SQLAlchemy
+* Flask-Migrate
+* Flask-JWT-Extended
+* PostgreSQL
+
+### APIs externas
+
+* Open Trivia Database (OpenTDB)
+
+### Despliegue
+
+* Render
+
+---
+
+## Instalación local
+
+Clona el repositorio:
+
+```bash
+git clone https://github.com/ProyectBlackWolf3005/JoalexisPinto-TriviaQuest-FinalProject.git
 ```
 
-### Backend Populate Table Users
+Instala las dependencias del frontend:
 
-To insert test users in the database execute the following command:
-
-```sh
-$ flask insert-test-users 5
+```bash
+npm install
 ```
 
-And you will see the following message:
+Instala las dependencias del backend:
 
-```
-  Creating test users
-  test_user1@test.com created.
-  test_user2@test.com created.
-  test_user3@test.com created.
-  test_user4@test.com created.
-  test_user5@test.com created.
-  Users created successfully!
+```bash
+pipenv install
 ```
 
-### **Important note for the database and the data inside it**
+Ejecuta el frontend:
 
-Every Github codespace environment will have **its own database**, so if you're working with more people eveyone will have a different database and different records inside it. This data **will be lost**, so don't spend too much time manually creating records for testing, instead, you can automate adding records to your database by editing ```commands.py``` file inside ```/src/api``` folder. Edit line 32 function ```insert_test_data``` to insert the data according to your model (use the function ```insert_test_users``` above as an example). Then, all you need to do is run ```pipenv run insert-test-data```.
+```bash
+npm run dev
+```
 
-### Front-End Manual Installation:
+Ejecuta el backend:
 
--   Make sure you are using node version 20 and that you have already successfully installed and runned the backend.
+```bash
+pipenv run start
+```
 
-1. Install the packages: `$ npm install`
-2. Start coding! start the webpack dev server `$ npm run start`
+---
 
-## Publish your website!
+## Estructura general
 
-This boilerplate it's 100% read to deploy with Render.com and Heroku in a matter of minutes. Please read the [official documentation about it](https://4geeks.com/docs/start/deploy-to-render-com).
+```text
+Frontend (React)
+│
+├── Home
+├── Login
+├── Registro
+├── Dashboard
+├── Jugar Trivia
+├── Resultados
+├── Perfil
+└── Mis Preguntas
 
-### Contributors
+Backend (Flask)
+│
+├── Autenticación JWT
+├── Usuarios
+├── Resultados
+└── Preguntas personalizadas
+```
 
-This template was built as part of the 4Geeks Academy [Coding Bootcamp](https://4geeksacademy.com/us/coding-bootcamp) by [Alejandro Sanchez](https://twitter.com/alesanchezr) and many other contributors. Find out more about our [Full Stack Developer Course](https://4geeksacademy.com/us/coding-bootcamps/part-time-full-stack-developer), and [Data Science Bootcamp](https://4geeksacademy.com/us/coding-bootcamps/datascience-machine-learning).
+---
 
-You can find other templates and resources like this at the [school github page](https://github.com/4geeksacademy/).
+## Mejoras futuras
+
+El proyecto fue desarrollado dentro del tiempo disponible del bootcamp, por lo que existen funcionalidades planificadas para futuras versiones:
+
+* Sistema de niveles de dificultad.
+* Temporizador por pregunta.
+* Ranking global de jugadores.
+* Más categorías de preguntas.
+* Sistema de logros y recompensas.
+* Estadísticas avanzadas.
+* Mejoras visuales y animaciones.
+
+---
+
+## Notas del desarrollo
+
+Este proyecto fue desarrollado utilizando el boilerplate oficial de Flask + React proporcionado por 4Geeks Academy como base de trabajo.
+
+Por este motivo, el repositorio conserva algunos archivos de configuración, documentación base o recursos del template original para mantener compatibilidad con el entorno de desarrollo y despliegue.
+
+Todas las funcionalidades principales de TriviaQuest fueron diseñadas, desarrolladas e integradas sobre dicha estructura base.
+
+---
+
+## Autor
+
+Joalexis Pinto
